@@ -46,7 +46,7 @@ public class MovieController {
     @GetMapping
     public CollectionModel<Movie> getAllMovies() {
         log.info("Peticion Listado de Peliculas");
-        
+
         List<Movie> movies = movieService.getAllMovies();
         for (Movie movie : movies) {
             movie.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(this.getClass()).getMovieById(movie.getId())).withSelfRel());
@@ -63,6 +63,7 @@ public class MovieController {
 
         Optional<Movie> optionalMovie = movieService.getMovieById(id);
         if (optionalMovie.isPresent()) {
+
             EntityModel<Movie> entityMovie = EntityModel.of(optionalMovie.get(),
                 WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(this.getClass()).getMovieById(id)).withSelfRel(),
                 WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(this.getClass()).getAllMovies()).withRel("all-movies"));
@@ -74,32 +75,32 @@ public class MovieController {
     }
 
     @PostMapping
-    public ResponseEntity<Map<String, Object>> createMovie(@RequestBody Movie movie) {
+    public ResponseEntity<EntityModel<Movie>> createMovie(@RequestBody Movie movie) {
         log.info("Peticion de crear pelicula ");
-        Map<String, Object> response = new HashMap<>();
         try {
-            movieService.createMovie(movie);
-            response.put("message", "Pelicula creada satisfactoriamente");
-            response.put("data", movie);
-            return ResponseEntity.ok(response);
+            Movie newMovie = movieService.createMovie(movie);
+            EntityModel<Movie> entityMovie = EntityModel.of(newMovie,
+                WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(this.getClass()).getMovieById(newMovie.getId())).withSelfRel(),
+                WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(this.getClass()).getAllMovies()).withRel("all-movies"));
+                return new ResponseEntity<>(entityMovie, HttpStatus.OK);
         } catch (Exception e) {
-            response.put("error", "Error error al crear la pelicula: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+            log.info("error", "Error error al crear la pelicula: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Map<String, Object>> updateMovie(@PathVariable Long id, @RequestBody Movie movie) {
+    public ResponseEntity<EntityModel<Movie>> updateMovie(@PathVariable Long id, @RequestBody Movie movie) {
         log.info("Peticion de actualizar pelicula ");
-        Map<String, Object> response = new HashMap<>();
         try {
-            movieService.updateMovie(id, movie);
-            response.put("message", "Pelicula actualizada satisfactoriamente");
-            response.put("data", movie);
-            return ResponseEntity.ok(response);
+            Movie updatedMovie = movieService.updateMovie(id, movie);
+            EntityModel<Movie> entityMovie = EntityModel.of(updatedMovie,
+                WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(this.getClass()).getMovieById(updatedMovie.getId())).withSelfRel(),
+                WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(this.getClass()).getAllMovies()).withRel("all-movies"));
+                return new ResponseEntity<>(entityMovie, HttpStatus.OK);
         } catch (Exception e) {
-            response.put("error", "Error error al actualizar la pelicula: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+            log.info("error", "Error error al actualizar la pelicula: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
