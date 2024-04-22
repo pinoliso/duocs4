@@ -11,6 +11,8 @@ import org.springframework.hateoas.Link;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import jakarta.annotation.PostConstruct;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.CollectionModel;
 
 import java.util.List;
 import java.util.Optional;
@@ -49,17 +51,16 @@ public class MovieController {
     }
     
     @GetMapping("/{id}")
-    public ResponseEntity<Movie> getMovieById(@PathVariable Long id) {
+    public ResponseEntity<EntityModel<Movie>> getMovieById(@PathVariable Long id) {
         log.info("Peticion de Pelicula " + id);
 
         Optional<Movie> optionalMovie = movieService.getMovieById(id);
         if (optionalMovie.isPresent()) {
-            Movie movie = optionalMovie.get();
-            Link selfLink = WebMvcLinkBuilder.linkTo(methodOn(this.getClass()).getMovieById(id)).withSelfRel();
-            movie.add(selfLink);
-            Link deleteLink = WebMvcLinkBuilder.linkTo(methodOn(this.getClass()).deleteMovie(id)).withRel("delete");
-            movie.add(deleteLink);
-            return new ResponseEntity<>(movie, HttpStatus.OK);
+            EntityModel<Movie> entityMovie = EntityModel.of(optionalMovie.get(),
+                WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(this.getClass()).getMovieById(id)).withSelfRel(),
+                WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(this.getClass()).getAllMovies()).withRel("all-movies"));
+            
+            return new ResponseEntity<>(entityMovie, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
