@@ -107,14 +107,12 @@ public class MovieController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, Object>> deleteMovie(@PathVariable Long id){
         log.info("Peticion de eliminar pelicula ");
-        Map<String, Object> response = new HashMap<>();
         try {
             movieService.deleteMovie(id);
-            response.put("message", "Pelicula eliminada satisfactoriamente");
-            return ResponseEntity.ok(response);
+            return ResponseEntity.status(HttpStatus.OK).build();
         } catch (Exception e) {
-            response.put("error", "Error error al eliminar la pelicula: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+            log.info("error", "Error error al eliminar la pelicula: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 }
