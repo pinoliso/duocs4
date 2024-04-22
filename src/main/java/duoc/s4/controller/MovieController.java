@@ -7,10 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
-import org.springframework.hateoas.Link;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import jakarta.annotation.PostConstruct;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.CollectionModel;
 
@@ -18,6 +16,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,9 +44,17 @@ public class MovieController {
     }
 
     @GetMapping
-    public List<Movie> getAllMovies() {
+    public CollectionModel<Movie> getAllMovies() {
         log.info("Peticion Listado de Peliculas");
-        return movieService.getAllMovies();
+        
+        List<Movie> movies = movieService.getAllMovies();
+        for (Movie movie : movies) {
+            movie.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(this.getClass()).getMovieById(movie.getId())).withSelfRel());
+        }
+
+        CollectionModel<Movie> collectionModel = CollectionModel.of(movies);
+        collectionModel.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(this.getClass()).getAllMovies()).withSelfRel());
+        return collectionModel;
     }
     
     @GetMapping("/{id}")
