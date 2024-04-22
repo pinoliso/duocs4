@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
+import jakarta.annotation.PostConstruct;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,6 +20,19 @@ public class MovieController {
 
     @Autowired
     private MovieService movieService;
+
+    @PostConstruct
+    public void insertTestData() {
+        for(int i = 0; i < 3; i++) {
+            Movie movie = new Movie();
+            movie.setTitle("Título de la película " + i);
+            movie.setDirector("Director " + i);
+            movie.setYear(2000 + i);
+            movie.setGenre("Acción");
+            movie.setSynopsis("Lorem ipsum");
+            movieService.createMovie(movie);
+        }
+    }
 
     @GetMapping
     public List<Movie> getAllMovies() {

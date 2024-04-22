@@ -23,8 +23,8 @@ public class MovieService {
         return movieRepository.findById(id);
     }
 
-    public void createMovie(Movie movie) {
-        movieRepository.save(movie);
+    public Movie createMovie(Movie movie) {
+        return movieRepository.save(movie);
     }
 
     public Movie updateMovie(Long id, Movie movie){
