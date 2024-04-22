@@ -15,8 +15,6 @@ import org.springframework.hateoas.CollectionModel;
 import java.util.List;
 import java.util.Optional;
 import java.util.Map;
-import java.util.HashMap;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,6 +75,7 @@ public class MovieController {
     @PostMapping
     public ResponseEntity<EntityModel<Movie>> createMovie(@RequestBody Movie movie) {
         log.info("Peticion de crear pelicula ");
+
         try {
             Movie newMovie = movieService.createMovie(movie);
             EntityModel<Movie> entityMovie = EntityModel.of(newMovie,
@@ -92,6 +91,7 @@ public class MovieController {
     @PutMapping("/{id}")
     public ResponseEntity<EntityModel<Movie>> updateMovie(@PathVariable Long id, @RequestBody Movie movie) {
         log.info("Peticion de actualizar pelicula ");
+
         try {
             Movie updatedMovie = movieService.updateMovie(id, movie);
             EntityModel<Movie> entityMovie = EntityModel.of(updatedMovie,
@@ -107,6 +107,7 @@ public class MovieController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, Object>> deleteMovie(@PathVariable Long id){
         log.info("Peticion de eliminar pelicula ");
+        
         try {
             movieService.deleteMovie(id);
             return ResponseEntity.status(HttpStatus.OK).build();

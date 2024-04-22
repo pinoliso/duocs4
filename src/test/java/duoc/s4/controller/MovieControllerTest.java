@@ -34,7 +34,7 @@ public class MovieControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders.get("/peliculas"))
             .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.jsonPath("$[0].title").value("Titanic"))
-            .andExpect(MockMvcResultMatchers.jsonPath("$[1].title").value("Spiderman"));
+            .andExpect(MockMvcResultMatchers.jsonPath("$._embedded.movieList.[0].title").value("Titanic"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$._embedded.movieList.[1].title").value("Spiderman"));
     }
 }
