@@ -7,16 +7,24 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import jakarta.annotation.PostConstruct;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.Map;
 import java.util.HashMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @RestController
 @RequestMapping("/peliculas")
 public class MovieController {
+
+    private static final Logger log = LoggerFactory.getLogger(MovieController.class);
 
     @Autowired
     private MovieService movieService;
@@ -36,19 +44,30 @@ public class MovieController {
 
     @GetMapping
     public List<Movie> getAllMovies() {
-        System.out.println("Peticion Listado de Peliculas");
+        log.info("Peticion Listado de Peliculas");
         return movieService.getAllMovies();
     }
     
     @GetMapping("/{id}")
-    public Optional<Movie> getMovieById(@PathVariable Long id) {
-        System.out.println("Peticion de Pelicula " + id);
-        return movieService.getMovieById(id);
+    public ResponseEntity<Movie> getMovieById(@PathVariable Long id) {
+        log.info("Peticion de Pelicula " + id);
+
+        Optional<Movie> optionalMovie = movieService.getMovieById(id);
+        if (optionalMovie.isPresent()) {
+            Movie movie = optionalMovie.get();
+            Link selfLink = WebMvcLinkBuilder.linkTo(methodOn(this.getClass()).getMovieById(id)).withSelfRel();
+            movie.add(selfLink);
+            Link deleteLink = WebMvcLinkBuilder.linkTo(methodOn(this.getClass()).deleteMovie(id)).withRel("delete");
+            movie.add(deleteLink);
+            return new ResponseEntity<>(movie, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
     @PostMapping
     public ResponseEntity<Map<String, Object>> createMovie(@RequestBody Movie movie) {
-        System.out.println("Peticion de crear pelicula ");
+        log.info("Peticion de crear pelicula ");
         Map<String, Object> response = new HashMap<>();
         try {
             movieService.createMovie(movie);
@@ -63,7 +82,7 @@ public class MovieController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Map<String, Object>> updateMovie(@PathVariable Long id, @RequestBody Movie movie) {
-        System.out.println("Peticion de actualizar pelicula ");
+        log.info("Peticion de actualizar pelicula ");
         Map<String, Object> response = new HashMap<>();
         try {
             movieService.updateMovie(id, movie);
@@ -77,8 +96,8 @@ public class MovieController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Map<String, Object>> deleteStudent(@PathVariable Long id){
-        System.out.println("Peticion de eliminar pelicula ");
+    public ResponseEntity<Map<String, Object>> deleteMovie(@PathVariable Long id){
+        log.info("Peticion de eliminar pelicula ");
         Map<String, Object> response = new HashMap<>();
         try {
             movieService.deleteMovie(id);
