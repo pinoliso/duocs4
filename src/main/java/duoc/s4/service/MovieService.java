@@ -22,4 +22,21 @@ public class MovieService {
     public Optional<Movie> getMovieById(Long id) {
         return movieRepository.findById(id);
     }
+
+    public Movie createMovie(Movie movie) {
+        return movieRepository.save(movie);
+    }
+
+    public Movie updateMovie(Long id, Movie movie){
+        if(movieRepository.existsById(id)){
+            movie.setId(id);
+            return movieRepository.save(movie);
+        }else {
+            return null;
+        }
+    }
+
+    public void deleteMovie(Long id){
+        movieRepository.deleteById(id);
+    }
 }
